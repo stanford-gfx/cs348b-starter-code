@@ -44,6 +44,7 @@
 #include "accelerators/bvh.h"
 #include "accelerators/kdtreeaccel.h"
 #include "cameras/environment.h"
+#include "cameras/lightfield.h"
 #include "cameras/orthographic.h"
 #include "cameras/perspective.h"
 #include "cameras/realistic.h"
@@ -807,6 +808,9 @@ Camera *MakeCamera(const std::string &name, const ParamSet &paramSet,
     else if (name == "environment")
         camera = CreateEnvironmentCamera(paramSet, animatedCam2World, film,
                                          mediumInterface.outside);
+    else if (name == "lightfield")
+        camera = CreateLightfieldCamera(paramSet, animatedCam2World, film,
+                                        mediumInterface.outside);
     else
         Warning("Camera \"%s\" unknown.", name.c_str());
     paramSet.ReportUnused();
