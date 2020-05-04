@@ -102,6 +102,11 @@ struct Distribution1D {
         CHECK(index >= 0 && index < Count());
         return func[index] / (funcInt * Count());
     }
+    Float CDF(Float u) {
+        int offset = int(u * (cdf.size() - 1));  // -1 since the CDF has an extra entry
+        Float du = u * (cdf.size() - 1) - offset;
+        return Lerp(du, cdf[offset], cdf[std::min<int>(offset+1, cdf.size() - 1)]);
+    }
 
     // Distribution1D Public Data
     std::vector<Float> func, cdf;
@@ -132,12 +137,36 @@ class Distribution2D {
         *pdf = pdfs[0] * pdfs[1];
         return Point2f(d0, d1);
     }
+    Point2f SampleContinuousSubset(Point2f u, const Bounds2f &b, Float *pdf) {
+        Float pdfs[2];
+        int v;
+        u[1] = Lerp(u[1], pMarginal->CDF(b.pMin[1]), pMarginal->CDF(b.pMax[1]));
+        Float d1 = pMarginal->SampleContinuous(u[1], &pdfs[1], &v);
+        pdfs[1] /= pMarginal->CDF(b.pMax[1]) - pMarginal->CDF(b.pMin[1]);
+
+        u[0] = Lerp(u[0], pConditionalV[v]->CDF(b.pMin[0]), pConditionalV[v]->CDF(b.pMax[0]));
+        Float d0 = pConditionalV[v]->SampleContinuous(u[0], &pdfs[0]);
+        pdfs[0] /= pConditionalV[v]->CDF(b.pMax[0]) - pConditionalV[v]->CDF(b.pMin[0]);
+
+        *pdf = pdfs[0] * pdfs[1];
+        return Point2f(d0, d1);
+    }
     Float Pdf(const Point2f &p) const {
         int iu = Clamp(int(p[0] * pConditionalV[0]->Count()), 0,
                        pConditionalV[0]->Count() - 1);
         int iv =
             Clamp(int(p[1] * pMarginal->Count()), 0, pMarginal->Count() - 1);
         return pConditionalV[iv]->func[iu] / pMarginal->funcInt;
+    }
+    Float PdfSubset(const Point2f &p, const Bounds2f &b) const {
+        int iu = Clamp(int(p[0] * pConditionalV[0]->Count()), 0,
+                       pConditionalV[0]->Count() - 1);
+        int iv =
+            Clamp(int(p[1] * pMarginal->Count()), 0, pMarginal->Count() - 1);
+        Float pdf = pConditionalV[iv]->func[iu] / pMarginal->funcInt;
+        pdf /= pMarginal->CDF(b.pMax[1]) - pMarginal->CDF(b.pMin[1]);
+        pdf /= pConditionalV[iv]->CDF(b.pMax[0]) - pConditionalV[iv]->CDF(b.pMin[0]);
+        return pdf;
     }
 
   private:

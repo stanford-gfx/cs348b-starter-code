@@ -65,6 +65,7 @@
 #include "lights/goniometric.h"
 #include "lights/infinite.h"
 #include "lights/point.h"
+#include "lights/portal.h"
 #include "lights/projection.h"
 #include "lights/spot.h"
 #include "materials/disney.h"
@@ -744,8 +745,13 @@ std::shared_ptr<Light> MakeLight(const std::string &name,
                                       paramSet);
     else if (name == "distant")
         light = CreateDistantLight(light2world, paramSet);
-    else if (name == "infinite" || name == "exinfinite")
-        light = CreateInfiniteLight(light2world, paramSet);
+    else if (name == "infinite" || name == "exinfinite") {
+        int n;
+        if (paramSet.FindPoint3f("P", &n) != nullptr)
+            light = CreatePortalInfiniteLight(light2world, paramSet);
+        else
+            light = CreateInfiniteLight(light2world, paramSet);
+    }
     else
         Warning("Light \"%s\" unknown.", name.c_str());
     paramSet.ReportUnused();
