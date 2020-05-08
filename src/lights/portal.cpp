@@ -84,7 +84,7 @@ PortalInfiniteLight::PortalInfiniteLight(const Transform &LightToWorld,
     // as described in the paper.
     Lmap.reset(nullptr);
 
-    // Initialize with a Distribution2D corresponding to scalar (luminance)
+    // Initialize with a SATDistribution2D corresponding to scalar (luminance)
     // values from the rectified environment map to build the PDF for sampling.
     distribution.reset(nullptr);
 }

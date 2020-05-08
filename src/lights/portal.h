@@ -45,6 +45,7 @@
 #include "shape.h"
 #include "scene.h"
 #include "mipmap.h"
+#include "satdistribution.h"
 
 #include <array>
 #include <vector>
@@ -77,7 +78,7 @@ class PortalInfiniteLight : public Light {
     std::unique_ptr<MIPMap<RGBSpectrum>> Lmap;
     Point3f worldCenter;
     Float worldRadius;
-    std::unique_ptr<Distribution2D> distribution;
+    std::unique_ptr<SATDistribution2D> distribution;
 };
 
 std::shared_ptr<PortalInfiniteLight> CreatePortalInfiniteLight(
