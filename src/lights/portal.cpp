@@ -114,7 +114,7 @@ Float PortalInfiniteLight::Pdf_Li(const Interaction &ref, const Vector3f &w) con
     ProfilePhase _(Prof::LightPdf);
 
     LOG(FATAL) << "Implement me!";
-    return Spectrum(0);
+    return 0;
 }
 
 // Not necessary to implement for this assignment
